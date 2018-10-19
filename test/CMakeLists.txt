@@ -2,6 +2,7 @@ set(TEST_SRC
     FastPlyTest.cpp
 )
 
+
 file(GLOB TEST_DATA
   "${CMAKE_CURRENT_SOURCE_DIR}/test_data/*.ply"
 )
