@@ -13,9 +13,9 @@ If you check one or more of these, maybe fastply is for you:
 
 # Why another PLY reader?
 While there is a large amount of (C++) PLY parsers, most fall into one of two categories (or both):
-    i) they try to solve either every single situation
-    ii) and/or are heavily focused on a specific environment.
-Readers of category I can read arbitrary PLY files (which conform to the standard). This means no optimizations (by the coder or the compiler) can be made ahead of time. For prototyping, testing, and general-purpose projects this is sufficient. Readers of category II have been developed inside a larger framework (think PCL) and thus often cater to the needs of that framework. Inclusion of such a massive third-party library, when all you needs is to read a ply file, is prohibitively.
+ 1) they try to solve either every single situation
+ 2) and/or are heavily focused on a specific environment.
+Ply readers of 1) can read arbitrary PLY files (which conform to the Ply standard). This means no optimizations (by the coder or the compiler) can be made ahead of time. For prototyping, testing, and general-purpose projects this is sufficient. Readers of 2) have, for example, been developed inside a larger framework (think PCL) and thus often cater to the needs of that framework. Inclusion of such a massive third-party library, when all you needs is to read a ply file, is prohibitively.
 
-More over, some PLY readers read a PLY file in its entirety into memory. When working with PLY files larger than memory (...well maybe you shouldn't) this is more than problematic.
+More over, some PLY readers load a PLY file in its entirety into memory. When working with PLY files larger than memory (...well maybe you shouldn't) this is more than problematic.
 
