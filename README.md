@@ -4,11 +4,11 @@ A barebones PLY reader (=read-only) that mmap()s your input,  for a lightweight 
 
 # Why fastply (..in the future)
 If you check one or more of these, maybe fastply is for you:
-    [ ] - Small, header only library with a permissive license (MIT) without any dependency, but STL
-    [ ] - You need to read PLY files very fast (sequential or random access)
-    [ ] - Your PLY files are largar than available memory (but you got reasonably fast disks)
-    [ ] - You know at compile-time what the layout of your PLY files looks like
-    [ ] - Your PLY files are uniform (no elements using lists with varying lengths per entry)
+    - [ ] Small, header only library with a permissive license (MIT) without any dependency, but STL
+    - [ ] You need to read PLY files very fast (sequential or random access)
+    - [ ] Your PLY files are largar than available memory (but you got reasonably fast disks)
+    - [ ] You know at compile-time what the layout of your PLY files looks like
+    - [ ] Your PLY files are uniform (no elements using lists with varying lengths per entry)
             - In other words, if all elements can be described by a 'struct' with fixed size, fastply will be able to parse it.
 
 # Why another PLY reader?
