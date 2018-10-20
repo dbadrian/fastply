@@ -17,7 +17,7 @@ include_directories(${GTEST_INCLUDE_DIRS})
 include_directories(include)
 
 # impl/examples
-add_subdirectory(src)
+# add_subdirectory(src)
 
 # FastPly Tests
 add_subdirectory(test)
