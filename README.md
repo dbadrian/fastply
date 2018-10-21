@@ -2,6 +2,12 @@
 
 A barebones PLY reader (=read-only) that mmap()s your input,  for a lightweight and fast random access to larger-than-memory PLY files ... which right now is a buggy prototype ;).
 
+NOTE: Under development, not stable (default = develop branch)!
+
+Status | Compiler |
+-------- | ------------ |
+[![Build Status](https://travis-ci.org/dbadrian/fastply.svg?branch=develop)](https://travis-ci.org/dbadrian/fastply) | GCC 7.0, Clang 3.9 - 4.0 - 5.0 |
+
 # Why fastply (..in the future)
 If you check one or more of these, maybe fastply is for you:
     - [ ] Small, header only library with a permissive license (MIT) without any dependency, but STL
