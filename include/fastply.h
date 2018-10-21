@@ -9,6 +9,8 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <system_error>
+#include <memory>
 
 #include <sys/mman.h>
 #include <fcntl.h>
@@ -30,7 +32,7 @@ struct PlyElement {
 
     T const & at(std::size_t  i) const {
         if(static_cast<unsigned int>(i) < size){
-        return start[i];
+            return start[i];
         }
         else {
             throw std::out_of_range("accessed position is out of range");
@@ -137,10 +139,10 @@ private:
             std::istringstream ls(line);
             std::string keyword;
             ls >> keyword;
-            // This transformation to all lower chars only handles ASCII
-            // Ply files should either be ASCII (+binary), so non standard encoding
-            // could be a problem. Note: This allows slightly non-standard formats to be
-            // succesfully parsed.
+            // This transformation to all lower chars only handles ASCII.
+            // Ply files should only be ASCII (+binary), so it should be alright.
+            // Note: This allows slightly non-standard formats to be successfully parsed.
+            // aka PlY plY cOmMent, will be fine.
             std::transform(keyword.begin(), keyword.end(), keyword.begin(), ::tolower);
             if (keyword == "ply" || keyword == "") continue;
             else if (keyword == "comment")    continue;
@@ -151,7 +153,7 @@ private:
             else if (keyword == "end_header") break;
             else {
                 throw std::runtime_error("Unknown keyword '" + keyword + "' found");
-                return false;// exception or bool unexpected header field
+                return false; // exception or bool unexpected header field
             }
         }
         header_length_ = ss.tellg();
@@ -170,9 +172,8 @@ private:
     }
 
     bool getElementCount(std::istream& is) {
-        // If we read more element definition tokes than defined
+        // If we read more element definition keywords than defined
         if(element_definition_count >= n_element_types_) {
-            // std::cout << element_definition_count << " " << n_element_types_ << std::endl;
             throw std::runtime_error("Definition of PLY file does not match the loaded file. Too many element types found.");
         }
 
