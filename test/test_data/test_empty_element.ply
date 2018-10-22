@@ -1,0 +1,46 @@
+ply
+format binary_little_endian 1.0
+element vertex 0
+property float x
+property float y
+property float z
+property float nx
+property float ny
+property float nz
+property uchar red
+property uchar green
+property uchar blue
+element camera 0
+property float view_px
+property float view_py
+property float view_pz
+property float x_axisx
+property float x_axisy
+property float x_axisz
+property float y_axisx
+property float y_axisy
+property float y_axisz
+property float z_axisx
+property float z_axisy
+property float z_axisz
+property float focal
+property float scalex
+property float scaley
+property float centerx
+property float centery
+property int viewportx
+property int viewporty
+property float k1
+property float k2
+element alltypes 0
+property char c
+property uchar uc
+property short s
+property ushort us
+property int i
+property uint ui
+property float f
+property double d
+element face 0
+property list uchar int vertex_index
+end_header

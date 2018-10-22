@@ -1,0 +1,43 @@
+{
+  "vertex": {
+    "n": 0,
+    "properties": [
+      [
+        "float",
+        "x"
+      ],
+      [
+        "float",
+        "y"
+      ],
+      [
+        "float",
+        "z"
+      ],
+      [
+        "float",
+        "nx"
+      ],
+      [
+        "float",
+        "ny"
+      ],
+      [
+        "float",
+        "nz"
+      ],
+      [
+        "uchar",
+        "red"
+      ],
+      [
+        "uchar",
+        "green"
+      ],
+      [
+        "uchar",
+        "blue"
+      ]
+    ]
+  }
+}
