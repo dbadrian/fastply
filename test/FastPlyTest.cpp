@@ -125,7 +125,6 @@ TEST_F(FastPlyBasicFunctionality, ElementAccessMethods)
 {
     auto path = std::string("test_many.ply");
     ASSERT_EQ(fp->init(path), true);
-    const auto& elements = fp->getElements();
     ASSERT_EQ(sizeof(VertexLayout), fp->get<Vertex>().sizeT);
 }
 
