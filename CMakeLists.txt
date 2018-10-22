@@ -18,6 +18,9 @@ include_directories(include)
 # impl/examples
 # add_subdirectory(src)
 
+# Build some examples
+add_subdirectory(example)
+
 # FastPly Tests
 enable_testing()
 add_subdirectory(test)

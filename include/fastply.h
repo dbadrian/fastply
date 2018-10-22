@@ -118,13 +118,18 @@ public:
         return n_element_types_;
     }
 
-    const std::tuple<Args...>& getElements() const {
+    const auto& getElements() const {
         return elements_;
     }
 
     template<typename T>
-    const auto get() const {
-        return std::get<T>(elements_);
+    const auto& get() const {
+        return std::get<PlyElement<T>>(elements_);
+    }
+
+    template<std::size_t I>
+    const auto& get() const {
+        return std::get<I>(elements_);
     }
 
 private:
@@ -219,10 +224,10 @@ private:
     int header_length_ = -1; //<!-- Length of header
     bool header_parsed_ = false; //<!-- Whether the header was successfully parsed
 
-    std::tuple<Args...> elements_; //<!-- Element layouts in order as given as template params
+    std::tuple<PlyElement<Args>...> elements_; //<!-- Element layouts in order as given as template params
     const unsigned int n_element_types_ = sizeof...(Args); //<!-- Number of template params (known at compile time)
-    unsigned int element_count_[std::tuple_size<std::tuple<Args...>>::value] = {}; //<!-- How many entries per element exist
-    // std::string element_name_[std::tuple_size<std::tuple<Args...>>::value] = {""}; //<!-- Name of seen elements. Not used
+    unsigned int element_count_[sizeof...(Args)] = {}; //<!-- How many entries per element exist
+    // std::string element_name_[sizeof...(Args)] = {""}; //<!-- Name of seen elements. Not used
 
     int fd_ = -1; //<!-- File descriptor pointing to the ply file
     void* mapped_data = nullptr; //<!-- Ptr to the memory-mapped start location of the ply file

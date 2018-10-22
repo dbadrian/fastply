@@ -5,10 +5,15 @@
 
 using namespace fastply;
 
-using Vertex = PlyElement<VertexLayout>;
-using Camera = PlyElement<CameraLayout>;
-using Alltypes = PlyElement<AlltypesLayout>;
-using Face = PlyElement<FaceLayout>;
+// using Vertex = PlyElement<VertexLayout>;
+// using Camera = PlyElement<CameraLayout>;
+// using Alltypes = PlyElement<AlltypesLayout>;
+// using Face = PlyElement<FaceLayout>;
+
+using Vertex = VertexLayout;
+using Camera = CameraLayout;
+using Alltypes = AlltypesLayout;
+using Face = FaceLayout;
 
 
 class FastPlyDataLayout : public testing::Test {};
@@ -121,8 +126,6 @@ TEST_F(FastPlyBasicFunctionality, ElementAccessMethods)
     auto path = std::string("test_many.ply");
     ASSERT_EQ(fp->init(path), true);
     const auto& elements = fp->getElements();
-    ASSERT_EQ(sizeof(VertexLayout), std::get<0>(elements).sizeT);
-    ASSERT_EQ(sizeof(VertexLayout), std::get<Vertex>(elements).sizeT);
     ASSERT_EQ(sizeof(VertexLayout), fp->get<Vertex>().sizeT);
 }
 
