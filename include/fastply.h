@@ -11,7 +11,6 @@
 #include <string>
 #include <system_error>
 #include <tuple>
-
 #include <iostream>
 
 #include <fcntl.h>
@@ -34,7 +33,7 @@ std::size_t getFileSize(const std::string& filename) {
 }
 
 template <typename T>
-class PlyElement {
+class PlyElementContainer {
  public:
   using iterator_category = std::random_access_iterator_tag;
   using value_type = T;
@@ -87,8 +86,9 @@ class PlyElement {
 
 template <typename... Args>
 class FastPly {
-  static_assert(sizeof...(Args),
-                "FastPly expects at least one element definition as template parameter.");
+  static_assert(
+      sizeof...(Args),
+      "FastPly expects at least one element definition as template parameter.");
 
  public:
   FastPly() = default;
@@ -116,7 +116,7 @@ class FastPly {
 
   template <typename T>
   const auto& get() const {
-    return std::get<PlyElement<T>>(elements_);
+    return std::get<PlyElementContainer<T>>(elements_);
   }
 
   template <std::size_t I>
@@ -143,7 +143,7 @@ class FastPly {
   int header_length_ = -1;               //!< Length of header in bytes
   bool header_parsed_ = false;           //!< Indicates valid header
 
-  std::tuple<PlyElement<Args>...>
+  std::tuple<PlyElementContainer<Args>...>
       elements_;  //!< Element layouts in order as given as template params
   const unsigned int num_element_definitions =
       sizeof...(Args);  //!< Number of template params (known at compile time)
@@ -153,7 +153,6 @@ class FastPly {
   int fd_ = -1;  //!< File descriptor pointing to the ply file
   void* ptr_mapped_file_ = nullptr;  //!< Ptr to start of mmap'ed file
 };
-
 
 template <typename... Args>
 bool FastPly<Args...>::open(std::string path) {
@@ -183,7 +182,7 @@ bool FastPly<Args...>::open(std::string path) {
     throw std::runtime_error("Failed to memory map " + path_);
   }
 
-  // Fill PlyElements with information (num_elements, ptr offsets etc.)
+  // Fill PlyElementContainers with information (num_elements, ptr offsets etc.)
   if constexpr (sizeof...(Args) > 0)
     setupElements<Args...>();
 
