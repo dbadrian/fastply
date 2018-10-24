@@ -21,28 +21,6 @@ TEST_F(FastPlyDataLayout, LayoutTests)
 }
 
 /********************************************************************
- * Test class when no template arguments are provided (ply file     *
- * without any element definitions.                                 *
- *******************************************************************/
-class FastPlyEmptyDefinition : public testing::Test {
-
-    using FastPlyC = FastPly<>;
-
-    void SetUp() override {
-        fp = std::make_unique<FastPlyC>();
-    }
-
-public:
-    std::unique_ptr<FastPlyC> fp;
-};
-
-TEST_F(FastPlyEmptyDefinition, MismatchElementDefinitions)
-{
-    auto path = std::string("test_no_element.ply");
-    ASSERT_EQ(fp->open(path), false);
-}
-
-/********************************************************************
  * Check basic funtionality, such as initialization, accessing      *
  * iterators, derefencing etc.                                      *
  *******************************************************************/
@@ -163,6 +141,29 @@ TEST_F(FastPlyEmptyElements, PointerState)
 // TODO: Test multiple instances <different> files
 
 
+/********************************************************************
+ * Test class when no template arguments are provided (ply file     *
+ * without any element definitions.                                 *
+ * EDIT: Not needed anymore, since static_assert inside the class   *
+ * will emit a warning to the user.                                 *
+ *******************************************************************/
+// class FastPlyEmptyDefinition : public testing::Test {
+
+//     using FastPlyC = FastPly<>;
+
+//     void SetUp() override {
+//         fp = std::make_unique<FastPlyC>();
+//     }
+
+// public:
+//     std::unique_ptr<FastPlyC> fp;
+// };
+
+// TEST_F(FastPlyEmptyDefinition, MismatchElementDefinitions)
+// {
+//     auto path = std::string("test_no_element.ply");
+//     ASSERT_EQ(fp->open(path), false);
+// }
 
 
 // TEST_F(FastPlyBasicFunctionality, DataReadOutLittleEndian)

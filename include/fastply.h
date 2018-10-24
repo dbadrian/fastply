@@ -87,8 +87,12 @@ class PlyElement {
 
 template <typename... Args>
 class FastPly {
+  static_assert(sizeof...(Args),
+                "FastPly expects at least one element definition as template parameter.");
+
  public:
   FastPly() = default;
+
   ~FastPly() { close(); };
 
   FastPly(const FastPly&) = delete;
@@ -149,6 +153,7 @@ class FastPly {
   int fd_ = -1;  //!< File descriptor pointing to the ply file
   void* ptr_mapped_file_ = nullptr;  //!< Ptr to start of mmap'ed file
 };
+
 
 template <typename... Args>
 bool FastPly<Args...>::open(std::string path) {
