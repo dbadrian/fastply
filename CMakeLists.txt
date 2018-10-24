@@ -5,12 +5,7 @@ project(fastply LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-add_definitions ("-Wall -Wno-deprecated-declarations -pedantic -Wshadow -Wpointer-arith -Wcast-qual -std=c++17")
-
-include(third_party/GTestSrc.cmake)
-
-# GTest needs threading support
-find_package (Threads)
+add_definitions ("-Wall -Wno-deprecated-declarations -pedantic -Wshadow -Wpointer-arith -Wcast-qual")
 
 # Fastply
 include_directories(include)

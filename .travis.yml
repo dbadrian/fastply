@@ -49,63 +49,110 @@ matrix:
       env:
         - MATRIX_EVAL="CCCOMPILER=clang-5.0 && CXXCOMPILER=clang++-5.0"
 
+    - os: osx
+      osx_image: xcode9.4
+      env:
+        - MATRIX_EVAL="CCCOMPILER=gcc-8 && CXXCOMPILER=g++-8"
+
+    - os: osx
+      osx_image: xcode10
+      env:
+        - MATRIX_EVAL="CCCOMPILER=gcc-8 && CXXCOMPILER=g++-8"
+
+    - os: osx
+      osx_image: xcode9.4
+      env:
+        - MATRIX_EVAL="CCCOMPILER=clang && CXXCOMPILER=clang++"
+
+    - os: osx
+      osx_image: xcode10
+      env:
+        - MATRIX_EVAL="CCCOMPILER=clang && CXXCOMPILER=clang++"
+
 before_install:
     - eval "${MATRIX_EVAL}"
 
 install:
   - export CXX=${CXXCOMPILER}
   - export CC=${CCCOMPILER}
-  - git submodule update --init --recursive
   ############################################################################
-  # Update CMake
+  # Preparation
   ############################################################################
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
-  # we use wget to fetch the cmake binaries
-  - travis_retry wget --no-check-certificate https://cmake.org/files/v3.10/cmake-3.10.0-Linux-x86_64.tar.gz
-  # extract the binaries; the output here is quite lengthy,
-  # so we swallow it to not clutter up the travis console
-  - tar -xvf cmake-3.10.0-Linux-x86_64.tar.gz > /dev/null
-  - mv cmake-3.10.0-Linux-x86_64 cmake-install
-  # add both the top-level directory and the bin directory from the archive
-  # to the system PATH. By adding it to the front of the path we hide the
-  # preinstalled CMake with our own.
-  - PATH=${DEPS_DIR}/cmake-install:${DEPS_DIR}/cmake-install/bin:$PATH
-  # don't forget to switch back to the main build directory once you are done
-  - cd ${TRAVIS_BUILD_DIR}
-  - cmake --version
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+      if [[ "${CCCOMPILER}" == "gcc-8" ]]; then
+        brew install gcc
+        brew link --overwrite gcc
 
+        if [[ "${TRAVIS_OSX_IMAGE}" == "xcode9.4" ]]; then
+          softwareupdate --list
+          softwareupdate --install "Command Line Tools (macOS High Sierra version 10.13) for Xcode-9.4"
+        fi
+      fi
+    fi
+  ############################################################################
+  # Update CMake
+  ############################################################################
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      travis_retry wget --no-check-certificate https://cmake.org/files/v3.10/cmake-3.10.0-Linux-x86_64.tar.gz
+      # extract the binaries; the output here is quite lengthy,
+      # so we swallow it to not clutter up the travis console
+      tar -xvf cmake-3.10.0-Linux-x86_64.tar.gz > /dev/null
+      mv cmake-3.10.0-Linux-x86_64 cmake-install
+      # add both the top-level directory and the bin directory from the archive
+      # to the system PATH. By adding it to the front of the path we hide the
+      # preinstalled CMake with our own.
+      PATH=${DEPS_DIR}/cmake-install:${DEPS_DIR}/cmake-install/bin:$PATH
+      # don't forget to switch back to the main build directory once you are done
+      cd ${TRAVIS_BUILD_DIR}
+      cmake --version
+    fi
   ############################################################################
   # Clang specific setup (inspired by boost::hana!)
   ############################################################################
   - |
-    if [[ "${CXX%%+*}" == "clang" ]]; then
-      if [[ "${CXX}" == "clang++-3.8" ]]; then LLVM_VERSION="3.8.1";
-      elif [[ "${CXX}" == "clang++-3.9" ]]; then LLVM_VERSION="3.9.1";
-      elif [[ "${CXX}" == "clang++-4.0" ]]; then LLVM_VERSION="4.0.1";
-      elif [[ "${CXX}" == "clang++-5.0" ]]; then LLVM_VERSION="5.0.1";
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      if [[ "${CXX%%+*}" == "clang" ]]; then
+        if [[ "${CXX}" == "clang++-3.8" ]]; then LLVM_VERSION="3.8.1";
+        elif [[ "${CXX}" == "clang++-3.9" ]]; then LLVM_VERSION="3.9.1";
+        elif [[ "${CXX}" == "clang++-4.0" ]]; then LLVM_VERSION="4.0.1";
+        elif [[ "${CXX}" == "clang++-5.0" ]]; then LLVM_VERSION="5.0.1";
+        fi
+        LLVM_URL="http://llvm.org/releases/${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz"
+        LIBCXX_URL="http://llvm.org/releases/${LLVM_VERSION}/libcxx-${LLVM_VERSION}.src.tar.xz"
+        LIBCXXABI_URL="http://llvm.org/releases/${LLVM_VERSION}/libcxxabi-${LLVM_VERSION}.src.tar.xz"
+        mkdir -p llvm llvm/build llvm/projects/libcxx llvm/projects/libcxxabi
+        travis_retry wget -O - ${LLVM_URL} | tar --strip-components=1 -xJ -C llvm || exit 1
+        travis_retry wget -O - ${LIBCXX_URL} | tar --strip-components=1 -xJ -C llvm/projects/libcxx || exit 1
+        travis_retry wget -O - ${LIBCXXABI_URL} | tar --strip-components=1 -xJ -C llvm/projects/libcxxabi || exit 1
+        (cd llvm/build && cmake .. -DCMAKE_INSTALL_PREFIX=${DEPS_DIR}/llvm/install) || exit 1
+        (cd llvm/build/projects/libcxx && make install -j2) || exit 1
+        (cd llvm/build/projects/libcxxabi && make install -j2) || exit 1
+        export CXXFLAGS="-isystem ${DEPS_DIR}/llvm/install/include/c++/v1"
+        export LDFLAGS="-L ${DEPS_DIR}/llvm/install/lib -l c++ -l c++abi"
+        export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${DEPS_DIR}/llvm/install/lib"
       fi
-      LLVM_URL="http://llvm.org/releases/${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz"
-      LIBCXX_URL="http://llvm.org/releases/${LLVM_VERSION}/libcxx-${LLVM_VERSION}.src.tar.xz"
-      LIBCXXABI_URL="http://llvm.org/releases/${LLVM_VERSION}/libcxxabi-${LLVM_VERSION}.src.tar.xz"
-      mkdir -p llvm llvm/build llvm/projects/libcxx llvm/projects/libcxxabi
-      travis_retry wget -O - ${LLVM_URL} | tar --strip-components=1 -xJ -C llvm || exit 1
-      travis_retry wget -O - ${LIBCXX_URL} | tar --strip-components=1 -xJ -C llvm/projects/libcxx || exit 1
-      travis_retry wget -O - ${LIBCXXABI_URL} | tar --strip-components=1 -xJ -C llvm/projects/libcxxabi || exit 1
-      (cd llvm/build && cmake .. -DCMAKE_INSTALL_PREFIX=${DEPS_DIR}/llvm/install) || exit 1
-      (cd llvm/build/projects/libcxx && make install -j2) || exit 1
-      (cd llvm/build/projects/libcxxabi && make install -j2) || exit 1
-      export CXXFLAGS="-isystem ${DEPS_DIR}/llvm/install/include/c++/v1"
-      export LDFLAGS="-L ${DEPS_DIR}/llvm/install/lib -l c++ -l c++abi"
-      export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${DEPS_DIR}/llvm/install/lib"
     fi
+  ############################################################################
+  # Compile GTest
+  ############################################################################
+  - cd ${DEPS_DIR}
+  - git clone https://github.com/google/googletest.git
+  - cd googletest && mkdir build && cd build
+  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${DEPS_DIR}/googletest/install ..
+  - make -j4 && make install
 
 before_script:
+  - cd ${TRAVIS_BUILD_DIR}
+  - export GTEST_ROOT=${DEPS_DIR}/googletest/install
   - mkdir build
   - cd build
-  - cmake ..
+  - cmake -DCMAKE_BUILD_TYPE=Release ..
 
-script: make && make test
+script: make -j4 && make test
 
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
+# after_success:
+#   - bash <(curl -s https://codecov.io/bash)
