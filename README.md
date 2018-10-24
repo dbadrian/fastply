@@ -6,7 +6,7 @@ NOTE: Under development, not stable (default = develop branch)!
 
 Status | Compiler |
 -------- | ------------ |
-[![Build Status](https://travis-ci.org/dbadrian/fastply.svg?branch=develop)](https://travis-ci.org/dbadrian/fastply) | GCC 7.0, Clang 3.9 - 4.0 - 5.0 |
+[![Build Status](https://travis-ci.org/dbadrian/fastply.svg?branch=develop)](https://travis-ci.org/dbadrian/fastply) | GCC 7.0, Clang 3.9 - 4.0 - 5.0 (linux & osx) |
 
 # Why fastply (..in the future)
 If you check one or more of these, maybe fastply is for you:
