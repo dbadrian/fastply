@@ -5,19 +5,22 @@ project(fastply LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-add_definitions ("-Wall -Wno-deprecated-declarations -pedantic -Wshadow -Wpointer-arith -Wcast-qual")
+add_definitions ("-Wall -Wextra -ansi -pedantic -Wshadow -Wpointer-arith -Wcast-qual")
 
 # Fastply
 include_directories(include)
 
-# impl/examples
-# add_subdirectory(src)
-
 # Build some examples
-add_subdirectory(example)
+option(BUILD_EXAMPLES "Build fastply examples" ON)
+if(BUILD_EXAMPLES)
+    add_subdirectory(example)
+endif(BUILD_EXAMPLES)
 
-# FastPly Tests
-enable_testing()
-add_subdirectory(test)
+# Unit Tests
+option(BUILD_UNIT_TESTS "Build fastply unit tests" ON)
+if(BUILD_UNIT_TESTS)
+    enable_testing()
+    add_subdirectory(test)
+endif(BUILD_UNIT_TESTS)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
