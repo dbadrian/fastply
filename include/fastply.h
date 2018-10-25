@@ -25,13 +25,13 @@
 #include <cstddef>
 #include <cstdint>
 #include <fstream>
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <system_error>
 #include <tuple>
-#include <iostream>
 
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -178,6 +178,9 @@ template <typename... Args>
 bool FastPly<Args...>::open(std::string path) {
   if (!num_element_definitions)
     return false;
+
+  if (fd_ != -1)  // already opened
+    return true;
 
   path_ = path;
   // Parse Header: This will only query the basic information
