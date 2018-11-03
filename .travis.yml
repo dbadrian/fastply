@@ -148,9 +148,6 @@ install:
 before_script:
   - cd ${TRAVIS_BUILD_DIR}
   - export GTEST_ROOT=${DEPS_DIR}/googletest/install
-  - mkdir build
-  - cd build
-  - cmake -DCMAKE_BUILD_TYPE=Release ..
 
 script:
   - cd ${TRAVIS_BUILD_DIR}/src && mkdir build && cd build
