@@ -152,7 +152,14 @@ before_script:
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=Release ..
 
-script: make -j4 && make test
+script:
+  - cd ${TRAVIS_BUILD_DIR}/src && mkdir build && cd build
+  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/.local/ ..
+  - cmake --build . --target install
+  - cd ${TRAVIS_BUILD_DIR}/test && mkdir build && cd build
+  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~/.local/ ..
+  - make
+  - ctest -VV
 
 # after_success:
 #   - bash <(curl -s https://codecov.io/bash)

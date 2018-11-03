@@ -1,6 +1,6 @@
 #include <iostream>
 #include "DataLayout.h"
-#include "fastply.h"
+#include "fastply/fastply.h"
 #include "gtest/gtest.h"
 
 using namespace fastply;
