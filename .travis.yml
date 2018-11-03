@@ -50,11 +50,6 @@ matrix:
         - MATRIX_EVAL="CCCOMPILER=clang-5.0 && CXXCOMPILER=clang++-5.0"
 
     - os: osx
-      osx_image: xcode9.4
-      env:
-        - MATRIX_EVAL="CCCOMPILER=gcc-8 && CXXCOMPILER=g++-8"
-
-    - os: osx
       osx_image: xcode10
       env:
         - MATRIX_EVAL="CCCOMPILER=gcc-8 && CXXCOMPILER=g++-8"
@@ -85,11 +80,6 @@ install:
       if [[ "${CCCOMPILER}" == "gcc-8" ]]; then
         brew install gcc
         brew link --overwrite gcc
-
-        if [[ "${TRAVIS_OSX_IMAGE}" == "xcode9.4" ]]; then
-          softwareupdate --list
-          softwareupdate --install "Command Line Tools (macOS High Sierra version 10.13) for Xcode-9.4"
-        fi
       fi
     fi
   ############################################################################
