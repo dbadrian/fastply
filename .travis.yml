@@ -16,6 +16,17 @@ matrix:
       env:
         - MATRIX_EVAL="CCCOMPILER=gcc-7 && CXXCOMPILER=g++-7"
 
+    # works on Precise and Trusty
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+      env:
+        - MATRIX_EVAL="CCCOMPILER=gcc-8 && CXXCOMPILER=g++-8"
+
     # works on Trusty
     - os: linux
       addons:
