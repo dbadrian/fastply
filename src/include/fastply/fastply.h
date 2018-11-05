@@ -171,6 +171,7 @@ class FastPly {
       {};  //!< Num. elements per element definition
 
   int fd_ = -1;  //!< File descriptor pointing to the ply file
+  std::size_t file_length_;
   void* ptr_mapped_file_ = nullptr;  //!< Ptr to start of mmap'ed file
 };
 
@@ -194,12 +195,12 @@ bool FastPly<Args...>::open(std::string path) {
     throw std::system_error(EFAULT, std::generic_category());
 
   // Get filesize (required by mmap)
-  auto file_size = getFileSize(path_.c_str());
-  if (file_size <= 0)
+  file_length_ = getFileSize(path_.c_str());
+  if (file_length_ <= 0)
     throw std::system_error(EFAULT, std::generic_category());
 
   // memory map the file descriptor
-  ptr_mapped_file_ = mmap(0, file_size, PROT_READ, MAP_PRIVATE, fd_, 0);
+  ptr_mapped_file_ = mmap(0, file_length_, PROT_READ, MAP_PRIVATE, fd_, 0);
   if (ptr_mapped_file_ == MAP_FAILED) {
     ::close(fd_);
     throw std::runtime_error("Failed to memory map " + path_);
@@ -214,10 +215,21 @@ bool FastPly<Args...>::open(std::string path) {
 
 template <typename... Args>
 void FastPly<Args...>::close() {
+
+  // Closing file descriptor
   if (fd_ != -1) {
     ::close(fd_);
     fd_ = -1;
+  }
+
+  // Freeind mmaped memory
+  if(ptr_mapped_file_ != nullptr) {
+    if(munmap(ptr_mapped_file_, file_length_) == -1) {
+      throw std::runtime_error("Failed to unmap memory!");
+    }
+
     ptr_mapped_file_ = nullptr;
+    file_length_ = -1;
   }
 
   path_ = "";
@@ -225,6 +237,7 @@ void FastPly<Args...>::close() {
   num_parsed_elements_ = 0;
   header_length_ = -1;
   header_parsed_ = false;
+
   std::fill(element_count_, element_count_ + num_element_definitions, 0);
 
   if constexpr (sizeof...(Args) > 0)

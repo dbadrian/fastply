@@ -43,6 +43,7 @@ TEST_F(FastPlyBasicFunctionality, IncorrectFilepath) {
   ASSERT_THROW(fp->open(path), std::system_error);
 }
 
+// Ensures opening and closing a file works as expected
 TEST_F(FastPlyBasicFunctionality, Initialization) {
   auto path = std::string("test_many.ply");
   ASSERT_EQ(fp->isBigEndian(), false);
@@ -51,6 +52,7 @@ TEST_F(FastPlyBasicFunctionality, Initialization) {
   ASSERT_EQ(fp->isHeaderParsed(), true);
   ASSERT_EQ(fp->isBigEndian(), false);
   ASSERT_EQ(fp->get<Vertex>().size(), 1232);
+  ASSERT_NO_THROW(fp->close());
 }
 
 TEST_F(FastPlyBasicFunctionality, RandomAccessMethods) {
