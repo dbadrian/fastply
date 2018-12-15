@@ -3,7 +3,7 @@ project(fastply VERSION 0.0.0)
 
 # library definition
 add_library(fastply INTERFACE)
-target_compile_features(fastply INTERFACE cxx_std_17)
+target_compile_features(fastply INTERFACE cxx_std_14)
 target_include_directories(fastply INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)

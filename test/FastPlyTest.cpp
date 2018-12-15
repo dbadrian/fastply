@@ -63,7 +63,10 @@ TEST_F(FastPlyBasicFunctionality, RandomAccessMethods) {
   ASSERT_EQ(fp->get<Vertex>()[fp->get<Vertex>().size() - 1],
             fp->get<Vertex>().back());
   ASSERT_THROW(fp->get<Vertex>().at(-1), std::out_of_range);
+  ASSERT_THROW(fp->get<Vertex>().at(-100), std::out_of_range);
   ASSERT_THROW(fp->get<Vertex>().at(fp->get<Vertex>().size()),
+               std::out_of_range);
+  ASSERT_THROW(fp->get<Vertex>().at(fp->get<Vertex>().size()+1000),
                std::out_of_range);
 }
 

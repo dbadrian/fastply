@@ -8,10 +8,10 @@ If you check one or more of these, maybe fastply is for you:
   - [ ] Very fast sequential and random read-only access to binary PLY files
   - [ ] Your PLY files are (much) larger than the available memory
   - [ ] Framework independent PLY reader library (type conversions are up to the user)
-  - [ ] Barebones (~250LOC), header only library with a permissive license (MIT) without any dependenies, but STL
+  - [ ] Barebones (~250LOC), header only library with a permissive license (MIT) without any dependencies, but STL
 
 
-# Why another PLY reader?
+## Why another PLY reader?
 While there is a large amount of (C++) PLY parsers, most fall into one of two categories (or both):
   * they are very generic and make no assumption about the structure of your PLY files (category I)
   * and/or are heavily focused on a specific environment (category II)
@@ -20,3 +20,34 @@ While category I/the ability to read arbitrary PLY files (which conform to the s
 
 Last but not least, most PLY readers read a PLY file in its entirety into memory. When working with PLY files larger than memory (...well maybe you shouldn't) this is more than problematic.
 
+# Installation & Usage
+
+Several options for installation of `fastply` are available to your project.
+
+## By copying
+
+`fastply` is a standalone header-only library without any additional dependencies.
+Simply copy it your project source tree.
+
+## CMake
+
+`fastply` adopts the modern CMake paradigm and an interface library is exposed as a target.
+
+First install the library to your system, for example:
+
+```bash
+mkdir build && cd build
+cmake ../src -DCMAKE_INSTALL_PREFIX=<install_prefix>
+cmake --build . --target install
+```
+
+You can now use it as a target in your project:
+
+```cmake
+find_package(fastply CONFIG REQUIRED)
+```
+
+and configure it with
+
+```bash
+cmake .. -DCMAKE_INSTALL_PREFIX=<install_prefix>

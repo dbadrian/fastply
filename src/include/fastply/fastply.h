@@ -32,6 +32,7 @@
 #include <string>
 #include <system_error>
 #include <tuple>
+#include <utility>
 
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -55,7 +56,7 @@ std::size_t getFileSize(const std::string& filename) {
 template <typename T>
 class PlyElementContainer {
  public:
-  using iterator_category = std::random_access_iterator_tag;
+  // using iterator_category = std::random_access_iterator_tag;
   using value_type = T;
   using difference_type = std::ptrdiff_t;
   using pointer = T*;
@@ -70,7 +71,7 @@ class PlyElementContainer {
   }
 
   constexpr const_reference at(std::size_t i) const {
-    if (static_cast<unsigned int>(i) < size_) {
+    if (i < size_) {
       return begin_[i];
     } else {
       throw std::out_of_range("Accessed position is out of range");
@@ -151,6 +152,21 @@ class FastPly {
 
   bool readElementDefinition(std::istream& is);
 
+#if defined(__cplusplus) && (__cplusplus == 201402L)
+  template <std::size_t idx>
+  void setupInnerElementImpl();
+
+  template <std::size_t idx>
+  void resetInnerElementImpl();
+
+  template <std::size_t... idx>
+  void setupInnerElementDispatcher(std::index_sequence<idx...>);
+
+  template <std::size_t... idx>
+  void resetInnerElementDispatcher(std::index_sequence<idx...>);
+
+#endif
+
   template <typename T, typename... Ts>
   void setupElements();
 
@@ -207,15 +223,13 @@ bool FastPly<Args...>::open(std::string path) {
   }
 
   // Fill PlyElementContainers with information (num_elements, ptr offsets etc.)
-  if constexpr (sizeof...(Args) > 0)
-    setupElements<Args...>();
+  setupElements<Args...>();
 
   return true;
 }
 
 template <typename... Args>
 void FastPly<Args...>::close() {
-
   // Closing file descriptor
   if (fd_ != -1) {
     ::close(fd_);
@@ -223,8 +237,8 @@ void FastPly<Args...>::close() {
   }
 
   // Freeind mmaped memory
-  if(ptr_mapped_file_ != nullptr) {
-    if(munmap(ptr_mapped_file_, file_length_) == -1) {
+  if (ptr_mapped_file_ != nullptr) {
+    if (munmap(ptr_mapped_file_, file_length_) == -1) {
       throw std::runtime_error("Failed to unmap memory!");
     }
 
@@ -240,8 +254,7 @@ void FastPly<Args...>::close() {
 
   std::fill(element_count_, element_count_ + num_element_definitions, 0);
 
-  if constexpr (sizeof...(Args) > 0)
-    resetElements<Args...>();
+  resetElements<Args...>();
 }
 
 template <typename... Args>
@@ -329,6 +342,67 @@ bool FastPly<Args...>::readElementDefinition(std::istream& is) {
   return true;
 }
 
+#if defined(__cplusplus) && (__cplusplus == 201402L)
+template <typename... Args>
+template <std::size_t idx>
+void FastPly<Args...>::setupInnerElementImpl() {
+  auto& el = std::get<idx + 1>(elements_);
+  el.size_ = element_count_[idx + 1];
+  unsigned char const* start =
+      reinterpret_cast<unsigned char const*>(std::get<(idx)>(elements_).end_);
+  el.begin_ = reinterpret_cast<decltype(el.begin_)>(start);
+  el.end_ = el.begin_ + el.size_;
+}
+
+template <typename... Args>
+template <std::size_t idx>
+void FastPly<Args...>::resetInnerElementImpl() {
+  auto& el = std::get<idx>(elements_);
+  el.size_ = 0;
+  el.begin_ = nullptr;
+  el.end_ = nullptr;
+}
+
+template <typename... Args>
+template <std::size_t... idx>
+void FastPly<Args...>::setupInnerElementDispatcher(
+    std::index_sequence<idx...>) {
+  (setupInnerElementImpl<std::integral_constant<std::size_t, idx>{}>(), ...);
+}
+
+template <typename... Args>
+template <std::size_t... idx>
+void FastPly<Args...>::resetInnerElementDispatcher(
+    std::index_sequence<idx...>) {
+  (resetInnerElementImpl<std::integral_constant<std::size_t, idx>{}>(), ...);
+}
+
+template <typename... Args>
+template <typename T, typename... Ts>
+void FastPly<Args...>::setupElements() {
+  // Setup first element (special case)
+  auto& el = std::get<0>(elements_);
+  el.size_ = element_count_[0];
+  unsigned char const* start =
+      static_cast<unsigned char const*>(ptr_mapped_file_) + header_length_;
+  el.begin_ = reinterpret_cast<decltype(el.begin_)>(start);
+  el.end_ = el.begin_ + el.size_;
+
+  // Setup remaining elements
+  auto remaining_indices =
+      std::make_index_sequence<sizeof...(Args) - 1>{};
+  setupInnerElementDispatcher(remaining_indices);
+}
+
+template <typename... Args>
+template <typename T, typename... Ts>
+void FastPly<Args...>::resetElements() {
+  auto indices = std::make_index_sequence<sizeof...(Args)>{};
+  resetInnerElementDispatcher(indices);
+}
+
+#else
+
 template <typename... Args>
 template <typename T, typename... Ts>
 void FastPly<Args...>::setupElements() {
@@ -369,9 +443,10 @@ void FastPly<Args...>::resetElements() {
   el.end_ = nullptr;
 
   if constexpr (sizeof...(Ts) > 0) {
-    setupElements<Ts...>();
+    resetElements<Ts...>();
   }
 }
+#endif
 
 }  // namespace fastply
 

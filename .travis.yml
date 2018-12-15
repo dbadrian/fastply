@@ -5,7 +5,16 @@ sudo: false
 
 matrix:
   include:
-    # works on Precise and Trusty
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+      env:
+        - MATRIX_EVAL="CCCOMPILER=gcc-6 && CXXCOMPILER=g++-6"
+
     - os: linux
       addons:
         apt:
@@ -16,7 +25,6 @@ matrix:
       env:
         - MATRIX_EVAL="CCCOMPILER=gcc-7 && CXXCOMPILER=g++-7"
 
-    # works on Precise and Trusty
     - os: linux
       addons:
         apt:
@@ -27,7 +35,6 @@ matrix:
       env:
         - MATRIX_EVAL="CCCOMPILER=gcc-8 && CXXCOMPILER=g++-8"
 
-    # works on Trusty
     - os: linux
       addons:
         apt:
@@ -38,7 +45,6 @@ matrix:
       env:
         - MATRIX_EVAL="CCCOMPILER=clang-3.9 && CXXCOMPILER=clang++-3.9"
 
-    # works on Trusty
     - os: linux
       addons:
         apt:
@@ -49,7 +55,6 @@ matrix:
       env:
         - MATRIX_EVAL="CCCOMPILER=clang-4.0 && CXXCOMPILER=clang++-4.0"
 
-    # works on Trusty
     - os: linux
       addons:
         apt:
@@ -98,16 +103,10 @@ install:
   ############################################################################
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      travis_retry wget --no-check-certificate https://cmake.org/files/v3.10/cmake-3.10.0-Linux-x86_64.tar.gz
-      # extract the binaries; the output here is quite lengthy,
-      # so we swallow it to not clutter up the travis console
-      tar -xvf cmake-3.10.0-Linux-x86_64.tar.gz > /dev/null
-      mv cmake-3.10.0-Linux-x86_64 cmake-install
-      # add both the top-level directory and the bin directory from the archive
-      # to the system PATH. By adding it to the front of the path we hide the
-      # preinstalled CMake with our own.
-      PATH=${DEPS_DIR}/cmake-install:${DEPS_DIR}/cmake-install/bin:$PATH
-      # don't forget to switch back to the main build directory once you are done
+      export CMAKE_VER="3.13.2"
+      travis_retry wget --no-check-certificate https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz
+      tar -xvf cmake-${CMAKE_VER}-Linux-x86_64.tar.gz > /dev/null
+      PATH=${DEPS_DIR}/cmake-${CMAKE_VER}-Linux-x86_64:${DEPS_DIR}/cmake-${CMAKE_VER}-Linux-x86_64/bin:$PATH
       cd ${TRAVIS_BUILD_DIR}
       cmake --version
     fi

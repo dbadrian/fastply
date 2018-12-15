@@ -10,9 +10,15 @@ include_directories(${GTEST_INCLUDE_DIRS})
 # GTest needs threading support
 find_package(Threads)
 
+# Compile Flags etc.
+SET(TEST_DEBUG_OPTIONS -Wall -Wno-deprecated-declarations -pedantic -Wshadow -Wpointer-arith -Wcast-qual)
+
 add_executable(tests FastPlyTest.cpp)
 target_link_libraries(tests PRIVATE fastply::fastply)
 target_link_libraries(tests PRIVATE ${GTEST_BOTH_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_compile_options(tests PRIVATE "$<$<CONFIG:DEBUG>:${TEST_DEBUG_OPTIONS}>")
+# target_compile_options(foo PRIVATE "$<$<CONFIG:RELEASE>:${MY_RELEASE_OPTIONS}>")
+
 
 gtest_discover_tests(tests)
 
