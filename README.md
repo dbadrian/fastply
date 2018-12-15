@@ -2,7 +2,7 @@
 
 This single-include header file provides fast sequential/random read access to larger-than-memory PLY files. No framework specific types are forced on you and elements are simply represented by their equivalent C/C++ struct definition - no conversions happening! By memory-mapping files it is up to the user what to load and store in memory.
 
-What's the catch? You need to know the definition of all elements at compile time (with the exception of how many entries per element type there are). Currently, POSIX only (tested on linux/osx), little-endian binary only (for now), and C++17 standard is required. And read-only (for now).
+What's the catch? You need to know the definition of all elements at compile time (with the exception of how many entries per element type there are). Currently, POSIX only (tested on linux/osx), little-endian binary only (for now), and C++14 standard is required. And read-only (for now).
 
 If you check one or more of these, maybe fastply is for you:
   - [ ] Very fast sequential and random read-only access to binary PLY files
