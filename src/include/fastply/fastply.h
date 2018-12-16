@@ -47,7 +47,7 @@ namespace fastply {
  * @param filename Path to file
  * @return Size in bytes, or -1 upon failure
  */
-std::size_t getFileSize(const std::string& filename) {
+int getFileSize(const std::string& filename) {
   struct ::stat st;
   int rc = stat(filename.c_str(), &st);
   return rc == 0 ? st.st_size : -1;
@@ -200,6 +200,7 @@ bool FastPly<Args...>::open(std::string path) {
     return true;
 
   path_ = path;
+
   // Parse Header: This will only query the basic information
   // such as little/big endian encoding, how many elements etc.
   if (!parseHeader())
