@@ -47,10 +47,10 @@ namespace fastply {
  * @param filename Path to file
  * @return Size in bytes, or -1 upon failure
  */
-int getFileSize(const std::string& filename) {
+std::size_t getFileSize(const std::string& filename) {
   struct ::stat st;
   int rc = stat(filename.c_str(), &st);
-  return rc == 0 ? st.st_size : -1;
+  return rc == 0 ? st.st_size : 0;
 }
 
 template <typename T>
@@ -244,7 +244,7 @@ void FastPly<Args...>::close() {
     }
 
     ptr_mapped_file_ = nullptr;
-    file_length_ = -1;
+    file_length_ = 0;
   }
 
   path_ = "";
