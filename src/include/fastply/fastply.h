@@ -47,7 +47,7 @@ namespace fastply {
  * @param filename Path to file
  * @return Size in bytes, or -1 upon failure
  */
-std::size_t getFileSize(const std::string& filename) {
+std::size_t getFileSize(const std::string& filename) noexcept {
   struct ::stat st;
   int rc = stat(filename.c_str(), &st);
   return rc == 0 ? st.st_size : 0;
@@ -56,7 +56,6 @@ std::size_t getFileSize(const std::string& filename) {
 template <typename T>
 class PlyElementContainer {
  public:
-  // using iterator_category = std::random_access_iterator_tag;
   using value_type = T;
   using difference_type = std::ptrdiff_t;
   using pointer = T*;
@@ -70,7 +69,7 @@ class PlyElementContainer {
     return begin_[i];
   }
 
-  constexpr const_reference at(std::size_t i) const {
+  constexpr const_reference at(std::size_t i) const noexcept(false) {
     if (i < size_) {
       return begin_[i];
     } else {
@@ -78,23 +77,23 @@ class PlyElementContainer {
     }
   }
 
-  constexpr const_reference front() const { return *begin_; }
+  constexpr const_reference front() const noexcept { return *begin_; }
 
-  constexpr const_reference back() const { return *(end_ - 1); }
+  constexpr const_reference back() const noexcept { return *(end_ - 1); }
 
-  constexpr const_pointer data() const { return begin_; }
+  constexpr const_pointer data() const noexcept { return begin_; }
 
-  constexpr const_iterator begin() const { return begin_; }
+  constexpr const_iterator begin() const noexcept { return begin_; }
 
-  constexpr const_iterator cbegin() const { return begin_; }
+  constexpr const_iterator cbegin() const noexcept { return begin_; }
 
-  constexpr const_iterator end() const { return end_; }
+  constexpr const_iterator end() const noexcept { return end_; }
 
-  constexpr const_iterator cend() const { return end_; }
+  constexpr const_iterator cend() const noexcept { return end_; }
 
-  constexpr std::size_t size() const { return size_; }
+  constexpr std::size_t size() const noexcept { return size_; }
 
-  constexpr bool empty() const { return size_ == 0; }
+  constexpr bool empty() const noexcept { return size_ == 0; }
 
  private:
   std::size_t size_ = 0;
@@ -119,29 +118,29 @@ class FastPly {
   FastPly(const FastPly&) = delete;
   FastPly& operator=(const FastPly&) = delete;
 
-  bool open(std::string path);
+  bool open(const std::string& path);
 
   void close();
 
-  std::string getInputPath() const { return path_; }
+  std::string getInputPath() const noexcept { return path_; }
 
-  int getHeaderOffset() const { return header_length_; }
+  int getHeaderOffset() const noexcept { return header_length_; }
 
-  bool isBigEndian() const { return is_big_endian_; }
+  bool isBigEndian() const noexcept { return is_big_endian_; }
 
-  bool isHeaderParsed() const { return header_parsed_; }
+  bool isHeaderParsed() const noexcept { return header_parsed_; }
 
-  std::size_t numberElements() const { return num_element_definitions; }
+  std::size_t numberElements() const noexcept { return num_element_definitions; }
 
-  const auto& getElements() const { return elements_; }
+  const auto& getElements() const noexcept { return elements_; }
 
   template <typename T>
-  const auto& get() const {
+  const auto& get() const noexcept {
     return std::get<PlyElementContainer<T>>(elements_);
   }
 
   template <std::size_t I>
-  const auto& get() const {
+  const auto& get() const noexcept {
     return std::get<I>(elements_);
   }
 
@@ -186,17 +185,16 @@ class FastPly {
   std::size_t element_count_[sizeof...(Args)] =
       {};  //!< Num. elements per element definition
 
-  int fd_ = -1;  //!< File descriptor pointing to the ply file
   std::size_t file_length_;
   void* ptr_mapped_file_ = nullptr;  //!< Ptr to start of mmap'ed file
 };
 
 template <typename... Args>
-bool FastPly<Args...>::open(std::string path) {
+bool FastPly<Args...>::open(const std::string& path) {
   if (!num_element_definitions)
     return false;
 
-  if (fd_ != -1)  // already opened
+  if (ptr_mapped_file_ != nullptr)  // already opened
     return true;
 
   path_ = path;
@@ -207,8 +205,8 @@ bool FastPly<Args...>::open(std::string path) {
     return false;
 
   // Open file descriptor required by mmap
-  fd_ = ::open(path_.c_str(), O_RDONLY, 0);
-  if (fd_ == -1)
+  int fd = ::open(path_.c_str(), O_RDONLY, 0);
+  if (fd == -1)
     throw std::system_error(EFAULT, std::generic_category());
 
   // Get filesize (required by mmap)
@@ -217,9 +215,9 @@ bool FastPly<Args...>::open(std::string path) {
     throw std::system_error(EFAULT, std::generic_category());
 
   // memory map the file descriptor
-  ptr_mapped_file_ = mmap(0, file_length_, PROT_READ, MAP_PRIVATE, fd_, 0);
+  ptr_mapped_file_ = mmap(0, file_length_, PROT_READ, MAP_PRIVATE, fd, 0);
+  ::close(fd); // can be closed
   if (ptr_mapped_file_ == MAP_FAILED) {
-    ::close(fd_);
     throw std::runtime_error("Failed to memory map " + path_);
   }
 
@@ -231,22 +229,15 @@ bool FastPly<Args...>::open(std::string path) {
 
 template <typename... Args>
 void FastPly<Args...>::close() {
-  // Closing file descriptor
-  if (fd_ != -1) {
-    ::close(fd_);
-    fd_ = -1;
-  }
-
   // Freeind mmaped memory
   if (ptr_mapped_file_ != nullptr) {
     if (munmap(ptr_mapped_file_, file_length_) == -1) {
       throw std::runtime_error("Failed to unmap memory!");
     }
-
     ptr_mapped_file_ = nullptr;
-    file_length_ = 0;
   }
 
+  file_length_ = 0;
   path_ = "";
   is_big_endian_ = false;
   num_parsed_elements_ = 0;
