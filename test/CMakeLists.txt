@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 # project(fastply_test)
 
-# find_package(fastply CONFIG REQUIRED)
+find_package(fastply CONFIG REQUIRED)
 
 enable_testing()
 find_package(GTest REQUIRED)
