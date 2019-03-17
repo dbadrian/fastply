@@ -1,28 +1,18 @@
-cmake_minimum_required(VERSION 2.8)
-project(fastply LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.8)
+project(fastply_dev)
+# entry point for IDEs/developers
 
-# Compiler requirements
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-add_definitions ("-Wall -Wno-deprecated-declarations -pedantic -Wshadow -Wpointer-arith -Wcast-qual -std=c++17")
+# The FastPly Library
+add_subdirectory(src)
 
-include(third_party/GTestSrc.cmake)
+# Build Examples
+# option(BUILD_EXAMPLES "Build examples" ON)
+# if(BUILD_EXAMPLES)
+#     add_subdirectory(example)
+# endif(BUILD_EXAMPLES)
 
-# GTest needs threading support
-find_package (Threads)
-
-# Fastply
-include_directories(include)
-
-# impl/examples
-# add_subdirectory(src)
-
-# Build some examples
-add_subdirectory(example)
-
-# FastPly Tests
-enable_testing()
-add_subdirectory(test)
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+# Build Unit Tests
+option(BUILD_UNIT_TESTS "Build unit tests" ON)
+if(BUILD_UNIT_TESTS)
+    add_subdirectory(test)
+endif(BUILD_UNIT_TESTS)

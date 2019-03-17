@@ -1,6 +1,3 @@
-# find_package(GTest REQUIRED)
-include(GoogleTest)
-
 add_executable(generateLargePly generate_ply.cpp)
 target_link_libraries(generateLargePly)
 

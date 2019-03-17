@@ -1,28 +1,53 @@
-# fastply
+# fastply [![Build Status](https://travis-ci.org/dbadrian/fastply.svg?branch=develop)](https://travis-ci.org/dbadrian/fastply)
 
-A barebones PLY reader (=read-only) that mmap()s your input,  for a lightweight and fast random access to larger-than-memory PLY files ... which right now is a buggy prototype ;).
+This single-include header file provides fast sequential/random read access to larger-than-memory PLY files. No framework specific types are forced on you and elements are simply represented by their equivalent C/C++ struct definition - no conversions happening! By memory-mapping files it is up to the user what to load and store in memory.
 
-NOTE: Under development, not stable (default = develop branch)!
+What's the catch? You need to know the definition of all elements at compile time (with the exception of how many entries per element type there are). Currently, POSIX only (tested on linux/osx), little-endian binary only (for now), and C++14 standard is required. And read-only (for now).
 
-Status | Compiler |
--------- | ------------ |
-[![Build Status](https://travis-ci.org/dbadrian/fastply.svg?branch=develop)](https://travis-ci.org/dbadrian/fastply) | GCC 7.0, Clang 3.9 - 4.0 - 5.0 |
-
-# Why fastply (..in the future)
 If you check one or more of these, maybe fastply is for you:
-  - [ ] Small, header only library with a permissive license (MIT) without any dependency, but STL
-  - [ ] You need to read PLY files very fast (sequential or random access)
-  - [ ] Your PLY files are largar than available memory (but you got reasonably fast disks)
-  - [ ] You know at compile-time what the layout of your PLY files looks like
-  - [ ] Your PLY files are uniform (no elements using lists with varying lengths per entry)
-    - In other words, if all elements can be described by a 'struct' with fixed size, fastply will be able to parse it.
+  - [ ] Very fast sequential and random read-only access to binary PLY files
+  - [ ] Your PLY files are (much) larger than the available memory
+  - [ ] Framework independent PLY reader library (type conversions are up to the user)
+  - [ ] Barebones (~250LOC), header only library with a permissive license (MIT) without any dependencies, but STL
 
-# Why another PLY reader?
+
+## Why another PLY reader?
 While there is a large amount of (C++) PLY parsers, most fall into one of two categories (or both):
-  * they try to solve either every single situation (category I)
+  * they are very generic and make no assumption about the structure of your PLY files (category I)
   * and/or are heavily focused on a specific environment (category II)
 
-Readers of category I can read arbitrary PLY files (which conform to the standard). This means no optimizations (by the coder or the compiler) can be made ahead of time. For prototyping, testing, and general-purpose projects this is sufficient. Readers of category II have been developed inside a larger framework (think PCL) and thus often cater to the needs of that framework. Inclusion of such a massive third-party library, when all you needs is to read a ply file, is prohibitively.
+While category I/the ability to read arbitrary PLY files (which conform to the standard) can be a big bonus, often you know exactly what types you will read in (and in C++ you need to define it anyway). PLY readers of category II have been developed inside a larger framework (think PCL) and thus often cater to the needs of that framework. Inclusion of such a massive third-party library, when all you needs is to read a ply file, is prohibitively. Also, often it comes with a lot of type conversion and potentially unnecessary allocations. With fastply's approach you will read in about 50-100x faster than other libraries.
 
-More over, some PLY readers read a PLY file in its entirety into memory. When working with PLY files larger than memory (...well maybe you shouldn't) this is more than problematic.
+Last but not least, most PLY readers read a PLY file in its entirety into memory. When working with PLY files larger than memory (...well maybe you shouldn't) this is more than problematic.
 
+# Installation & Usage
+
+Several options for installation of `fastply` are available to your project.
+
+## By copying
+
+`fastply` is a standalone header-only library without any additional dependencies.
+Simply copy it your project source tree.
+
+## CMake
+
+`fastply` adopts the modern CMake paradigm and an interface library is exposed as a target.
+
+First install the library to your system, for example:
+
+```bash
+mkdir build && cd build
+cmake ../src -DCMAKE_INSTALL_PREFIX=<install_prefix>
+cmake --build . --target install
+```
+
+You can now use it as a target in your project:
+
+```cmake
+find_package(fastply CONFIG REQUIRED)
+```
+
+and configure it with
+
+```bash
+cmake .. -DCMAKE_INSTALL_PREFIX=<install_prefix>
