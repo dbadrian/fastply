@@ -47,7 +47,7 @@ namespace fastply {
  * @param filename Path to file
  * @return Size in bytes, or -1 upon failure
  */
-std::size_t getFileSize(const std::string& filename) noexcept {
+inline std::size_t getFileSize(const std::string& filename) noexcept {
   struct ::stat st;
   int rc = stat(filename.c_str(), &st);
   return rc == 0 ? st.st_size : 0;
