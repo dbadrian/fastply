@@ -66,7 +66,7 @@ matrix:
         - MATRIX_EVAL="CCCOMPILER=clang-5.0 && CXXCOMPILER=clang++-5.0"
 
     - os: osx
-      osx_image: xcode10
+      osx_image: xcode10.2
       env:
         - MATRIX_EVAL="CCCOMPILER=gcc-8 && CXXCOMPILER=g++-8"
 
