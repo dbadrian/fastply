@@ -1,4 +1,4 @@
-# fastply [![Build Status](https://travis-ci.org/dbadrian/fastply.svg?branch=develop)](https://travis-ci.org/dbadrian/fastply)
+# fastply 
 
 This single-include header file provides fast sequential/random read access to larger-than-memory PLY files. No framework specific types are forced on you and elements are simply represented by their equivalent C/C++ struct definition - no conversions happening! By memory-mapping files it is up to the user what to load and store in memory.
 
